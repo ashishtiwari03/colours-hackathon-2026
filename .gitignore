@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.streamlit/
+data/mistral_cache/
+test.py
