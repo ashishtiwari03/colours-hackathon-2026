@@ -121,10 +121,10 @@ with tab2:
     recommendations = load_recommendations()
 
     all_teams = sorted({r["team"] for r in recommendations})
-    selected = st.pills(
+    selected = st.radio(
         "Filter by team",
         ["All"] + all_teams,
-        default="All",
+        horizontal=True,
         label_visibility="collapsed",
     )
 
