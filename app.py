@@ -1,70 +1,174 @@
+import json
 import streamlit as st
-from utils.mistral_client import ask
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from pathlib import Path
+from utils.insight_engine import load_survey, team_dimension_means, detect_risks, company_summary
 
-st.set_page_config(page_title="Hackathon App", layout="wide")
+st.set_page_config(page_title="PulseAct", page_icon="📊", layout="wide")
 
-st.title("COLOURS Hackathon App")
 
-tab1, tab2 = st.tabs(["Problem", "AI Demo"])
+@st.cache_data
+def load_recommendations() -> list[dict]:
+    path = Path("data/recommendations_cache.json")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+with st.sidebar:
+    st.title("📊 PulseAct")
+    st.caption("From Survey to Action")
+    st.divider()
+    st.markdown("**COLOURS Hackathon 2026**")
+    st.markdown("_Workplace Reinvented Challenge #7_")
+    st.divider()
+    st.caption("Demo: MetalWorks Latvia, 100 employees")
+
+tab1, tab2, tab3 = st.tabs(["📥 Upload & Insights", "🎯 Action Plan", "📈 Trend & ROI"])
 
 with tab1:
-    st.write("Problem will be defined on hackathon day.")
+    st.subheader("Upload your wellbeing survey")
+
+    uploaded = st.file_uploader("Upload CSV", type=["csv"], help="Or use the demo dataset below")
+
+    if uploaded is not None:
+        df = pd.read_csv(uploaded)
+        st.caption(f"✓ Loaded {len(df)} responses from your file")
+    else:
+        df = load_survey()
+        st.caption("Using demo data: MetalWorks Latvia (100 employees, 5 teams)")
+
+    st.divider()
+
+    summary = company_summary(df)
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Total Employees", summary["total_employees"])
+    col2.metric("Teams", summary["num_teams"])
+    col3.metric(
+        "Overall Wellbeing",
+        f'{summary["overall_mean_excluding_burnout"]:.2f}',
+        help="Average across 7 positive dimensions (1-5, higher is better)",
+    )
+    col4.metric(
+        "Burnout Risk",
+        f'{summary["overall_burnout_mean"]:.2f}',
+        help="Average burnout signal (1-5, lower is better)",
+    )
+
+    st.info(
+        "📊 **At first glance, MetalWorks looks fine.** "
+        "Overall wellbeing 3.27, burnout 3.44 — manageable averages. "
+        "But averages hide where the real problem is. Scroll down."
+    )
+
+    st.divider()
+
+    st.subheader("🌡️ Risk heatmap by team")
+
+    means_long = team_dimension_means(df)
+    pivot = means_long.pivot(index="team", columns="dimension", values="mean_score")
+
+    positive_dims = [
+        "workload_manageability", "recognition", "communication",
+        "manager_support", "growth", "autonomy", "social_connection",
+    ]
+    column_order = positive_dims + ["burnout_risk"]
+    pivot = pivot[column_order]
+
+    display_pivot = pivot.copy()
+    display_pivot["burnout_risk"] = 6 - display_pivot["burnout_risk"]
+    display_pivot = display_pivot.rename(columns={"burnout_risk": "burnout_risk*"})
+
+    fig = px.imshow(
+        display_pivot,
+        text_auto=".2f",
+        color_continuous_scale="RdYlGn",
+        zmin=1,
+        zmax=5,
+        aspect="auto",
+        labels={"color": "Score"},
+    )
+    fig.update_layout(
+        height=350,
+        margin=dict(l=10, r=10, t=10, b=10),
+        coloraxis_showscale=True,
+    )
+    fig.update_xaxes(side="bottom", tickangle=-30)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption("*burnout_risk inverted for visualization (red = high risk)")
+
+    st.divider()
+
+    st.subheader("🚨 Top risk patterns")
+    risks = detect_risks(df, top_n=5)
+
+    for risk in risks:
+        with st.container(border=True):
+            cols = st.columns([2, 2, 1, 1])
+            cols[0].markdown(f"**{risk['team']}**")
+            cols[1].markdown(f"`{risk['dimension']}`")
+            score_color = "🔴" if risk["severity"] >= 0.5 else "🟠"
+            cols[2].markdown(f"{score_color} **{risk['mean_score']:.2f}**")
+            cols[3].caption(f"{risk['employee_count']} employees")
 
 with tab2:
-    st.subheader("Solution Generator")
+    st.subheader("🎯 Action Plan for Leadership")
+    st.caption(
+        "Top 5 risks identified. Each comes with AI-generated recommendations "
+        "tailored to a Latvian manufacturing context. Click any card to expand."
+    )
 
-    problem = st.text_area("Describe the problem")
+    recommendations = load_recommendations()
 
-    col1, col2, col3, col4 = st.columns(4)
+    all_teams = sorted({r["team"] for r in recommendations})
+    selected = st.pills(
+        "Filter by team",
+        ["All"] + all_teams,
+        default="All",
+        label_visibility="collapsed",
+    )
 
-    with col1:
-        if st.button("Generate Idea"):
-            prompt = f"""
-            Based on this problem: {problem}
-            Suggest a simple, practical workplace solution.
-            Keep it realistic and implementable.
-            """
-            st.write(ask(prompt, fallback="Idea unavailable"))
+    if selected and selected != "All":
+        filtered = [r for r in recommendations if r["team"] == selected]
+    else:
+        filtered = recommendations
 
-    with col2:
-        if st.button("Generate Pitch"):
-            prompt = f"""
-            Create a 1-minute startup pitch for this solution:
-            {problem}
-            Include problem, solution, and impact.
-            """
-            st.write(ask(prompt, fallback="Pitch unavailable"))
+    if not filtered:
+        st.info("No risks for this filter.")
 
-    with col3:
-        if st.button("Business Case"):
-            prompt = f"""
-            Explain the business value and ROI for solving this:
-            {problem}
-            Include numbers and cost-saving logic.
-            """
-            st.write(ask(prompt, fallback="Business unavailable"))
-
-    col1, col2, col3, col4 = st.columns(4)
-
-with col4:
-    if st.button("Full Solution"):
-        if not problem:
-            st.warning("Please enter a problem first")
+    for i, rec in enumerate(filtered):
+        if rec["severity"] >= 0.6:
+            icon = "🔴"
+            severity_label = "CRITICAL"
+        elif rec["severity"] >= 0.4:
+            icon = "🟠"
+            severity_label = "HIGH"
         else:
-            prompt = f"""
-            Problem: {problem}
+            icon = "🟡"
+            severity_label = "MODERATE"
 
-            Create a solution that:
-            - Detects burnout early using work patterns
-            - Is privacy-safe (no personal data)
-            - Is easy for companies to implement
+        title = f"{icon}  **{rec['team']}** / `{rec['dimension']}` — score {rec['mean_score']:.2f} ({rec['employee_count']} employees) — {severity_label}"
 
-            Provide:
-            1. Solution name
-            2. How it works (3 steps)
-            3. Business value
-            4. Why it's better than existing tools
-            """
+        with st.expander(title, expanded=(i == 0)):
+            st.markdown(f"### {rec['headline']}")
+            st.markdown(f"**Why it matters:** {rec['why_it_matters']}")
 
-            st.success("Full Solution:")
-            st.write(ask(prompt, fallback="Solution unavailable"))
+            st.divider()
+            st.markdown("**Recommended actions:**")
+
+            for j, action in enumerate(rec["actions"], start=1):
+                with st.container(border=True):
+                    cols = st.columns([5, 1, 1, 1])
+                    cols[0].markdown(f"**{j}.** {action['action']}")
+                    cols[1].caption(f"Effort: **{action['effort']}**")
+                    cols[2].caption(f"Impact: **{action['impact']}**")
+                    cols[3].caption(f"⏱ {action['timeline_weeks']}w")
+
+    st.divider()
+    st.caption(
+        "ℹ️ Pattern detection runs deterministically (pandas). "
+        "Recommendations generated by Mistral AI, cached locally for demo reliability."
+    )
+
+with tab3:
+    st.info("📈 Trend and ROI dashboard — building Wednesday morning.")
