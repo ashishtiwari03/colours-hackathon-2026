@@ -1,0 +1,147 @@
+[
+  {
+    "team": "Production",
+    "dimension": "burnout_risk",
+    "mean_score": 4.25,
+    "employee_count": 40,
+    "severity": 0.75,
+    "headline": "High burnout risk in Production team requires immediate attention",
+    "why_it_matters": "Burnout in manufacturing leads to absenteeism, lower productivity, and higher turnover, directly impacting operational efficiency and labor costs. Latvian labor laws mandate workplace safety, including mental health protections, making this a compliance risk. Addressing this proactively can prevent long-term workforce attrition.",
+    "actions": [
+      {
+        "action": "Introduce mandatory 15-minute micro-breaks every 2 hours for Production staff, aligned with Latvian labor regulations on rest periods",
+        "effort": "low",
+        "impact": "medium",
+        "timeline_weeks": 2
+      },
+      {
+        "action": "Implement a peer support system where experienced Production employees mentor newer hires to reduce workload pressure",
+        "effort": "medium",
+        "impact": "high",
+        "timeline_weeks": 6
+      },
+      {
+        "action": "Conduct bi-weekly anonymous pulse surveys on workload and stress, with results shared with team leads and corrective actions tracked",
+        "effort": "high",
+        "impact": "high",
+        "timeline_weeks": 8
+      }
+    ]
+  },
+  {
+    "team": "Production",
+    "dimension": "workload_manageability",
+    "mean_score": 2.3,
+    "employee_count": 40,
+    "severity": 0.7,
+    "headline": "Production team struggles with unmanageable workloads, risking burnout and quality issues",
+    "why_it_matters": "High workloads reduce employee well-being, increase error rates, and lower productivity. In Latvia’s competitive manufacturing sector, this can lead to higher turnover and operational disruptions. Addressing this proactively prevents long-term costs and supports sustainable growth.",
+    "actions": [
+      {
+        "action": "Conduct a 2-week workload audit with Production team leads to map tasks, bottlenecks, and idle time using shift logs and supervisor feedback",
+        "effort": "medium",
+        "impact": "high",
+        "timeline_weeks": 4
+      },
+      {
+        "action": "Implement a rotating 'workload balancing' system where senior operators mentor 2-3 colleagues weekly to redistribute tasks based on skill and capacity",
+        "effort": "low",
+        "impact": "medium",
+        "timeline_weeks": 6
+      },
+      {
+        "action": "Introduce a digital Kanban board (e.g., Trello or local alternatives) for Production to visualize workflow, set WIP limits, and flag delays in real-time",
+        "effort": "medium",
+        "impact": "high",
+        "timeline_weeks": 8
+      }
+    ]
+  },
+  {
+    "team": "Engineering",
+    "dimension": "recognition",
+    "mean_score": 2.48,
+    "employee_count": 25,
+    "severity": 0.52,
+    "headline": "Engineering team lacks recognition, risking engagement and retention",
+    "why_it_matters": "Low recognition scores (2.48/5) can demotivate engineers, reduce productivity, and increase turnover in a critical department. High-effort roles in manufacturing demand visible appreciation to sustain performance and innovation.",
+    "actions": [
+      {
+        "action": "Introduce monthly 'Engineering Hero' awards with small monetary bonuses (€50-100) and public recognition in team meetings",
+        "effort": "low",
+        "impact": "medium",
+        "timeline_weeks": 4
+      },
+      {
+        "action": "Implement a peer-to-peer recognition system using a digital platform (e.g., Bonusly or local alternatives) where employees can give instant recognition points redeemable for gift cards or extra paid time off",
+        "effort": "medium",
+        "impact": "high",
+        "timeline_weeks": 8
+      },
+      {
+        "action": "Organize quarterly 'Engineering Innovation Days' where teams present projects to leadership, followed by a team lunch and certificates of achievement for top contributors",
+        "effort": "high",
+        "impact": "high",
+        "timeline_weeks": 12
+      }
+    ]
+  },
+  {
+    "team": "Production",
+    "dimension": "autonomy",
+    "mean_score": 2.525,
+    "employee_count": 40,
+    "severity": 0.475,
+    "headline": "Production team lacks autonomy, risking engagement and efficiency",
+    "why_it_matters": "Low autonomy can lead to disengagement, higher turnover, and reduced productivity in a high-pressure manufacturing environment. Addressing this can improve morale, innovation, and operational agility, which are critical for competitiveness in Latvia’s industrial sector.",
+    "actions": [
+      {
+        "action": "Introduce shift-level decision-making: empower team leads to adjust minor production schedules (e.g., break timing, tool maintenance) within predefined limits",
+        "effort": "low",
+        "impact": "medium",
+        "timeline_weeks": 4
+      },
+      {
+        "action": "Pilot a 'suggestion box' system with monthly review meetings where employees can propose and vote on small process improvements (e.g., workflow adjustments, safety tweaks)",
+        "effort": "medium",
+        "impact": "high",
+        "timeline_weeks": 8
+      },
+      {
+        "action": "Restructure Production into smaller, self-managing units (e.g., 8 teams of 5) with clear KPIs and rotating leadership roles to foster ownership",
+        "effort": "high",
+        "impact": "high",
+        "timeline_weeks": 16
+      }
+    ]
+  },
+  {
+    "team": "Production",
+    "dimension": "recognition",
+    "mean_score": 2.55,
+    "employee_count": 40,
+    "severity": 0.45,
+    "headline": "Production team lacks visible recognition for their contributions",
+    "why_it_matters": "Low recognition scores correlate with reduced morale, higher turnover, and lower productivity in manufacturing environments where teamwork and consistency are critical. Addressing this risk can improve engagement and operational stability.",
+    "actions": [
+      {
+        "action": "Implement a monthly 'Employee of the Month' program with a small monetary bonus (€50-€100) and public recognition in team meetings or on company noticeboards",
+        "effort": "low",
+        "impact": "medium",
+        "timeline_weeks": 4
+      },
+      {
+        "action": "Introduce a peer-to-peer recognition system where employees can nominate colleagues for 'Shout-Outs' during shift handovers, with monthly winners receiving gift cards (e.g., €20) from local stores",
+        "effort": "medium",
+        "impact": "high",
+        "timeline_weeks": 8
+      },
+      {
+        "action": "Organize quarterly team-building events (e.g., company-sponsored barbecues or sports activities) to celebrate collective achievements and foster a culture of appreciation",
+        "effort": "high",
+        "impact": "medium",
+        "timeline_weeks": 12
+      }
+    ]
+  }
+]
