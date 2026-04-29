@@ -4,26 +4,48 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from pathlib import Path
-from utils.insight_engine import load_survey, team_dimension_means, detect_risks, company_summary
+from utils.insight_engine import team_dimension_means, detect_risks, company_summary
 from utils.trend_data import build_historical_trend, build_projection, roi_calculation
+
+def get_active_dataset(sector_label: str) -> tuple[Path, Path, str, int]:
+    """Returns (csv_path, recommendations_path, company_name, employee_count) for the selected sector."""
+    if sector_label.startswith("IT"):
+        return (
+            Path("data/techriga_survey.csv"),
+            Path("data/recommendations_cache_it.json"),
+            "TechRiga",
+            80,
+        )
+    return (
+        Path("data/survey_responses.csv"),
+        Path("data/recommendations_cache.json"),
+        "MetalWorks Latvia",
+        100,
+    )
+
 
 st.set_page_config(page_title="PulseAct", page_icon="📊", layout="wide")
 
 
 @st.cache_data
-def load_recommendations() -> list[dict]:
-    path = Path("data/recommendations_cache.json")
-    return json.loads(path.read_text(encoding="utf-8"))
+def load_recommendations(path: str) -> list[dict]:
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 with st.sidebar:
+    sector = st.selectbox(
+        "Demo sector",
+        ["Manufacturing — MetalWorks Latvia", "IT Services — TechRiga"],
+        index=0,
+    )
+    csv_path, rec_path, company_name, company_size = get_active_dataset(sector)
     st.title("📊 PulseAct")
     st.caption("From Survey to Action")
     st.divider()
     st.markdown("**COLOURS Hackathon 2026**")
     st.markdown("_Workplace Reinvented Challenge #7_")
     st.divider()
-    st.caption("Demo: MetalWorks Latvia, 100 employees")
+    st.caption(f"Demo: {company_name}, {company_size} employees")
 
 tab1, tab2, tab3 = st.tabs(["📥 Upload & Insights", "🎯 Action Plan", "📈 Trend & ROI"])
 
@@ -36,8 +58,8 @@ with tab1:
         df = pd.read_csv(uploaded)
         st.caption(f"✓ Loaded {len(df)} responses from your file")
     else:
-        df = load_survey()
-        st.caption("Using demo data: MetalWorks Latvia (100 employees, 5 teams)")
+        df = pd.read_csv(csv_path)
+        st.caption(f"Using demo data: {company_name} ({company_size} employees, {df['team'].nunique()} teams)")
 
     st.divider()
 
@@ -57,8 +79,8 @@ with tab1:
     )
 
     st.info(
-        "📊 **At first glance, MetalWorks looks fine.** "
-        "Overall wellbeing 3.27, burnout 3.44 — manageable averages. "
+        f"📊 **At first glance, {company_name} looks fine.** "
+        "Overall wellbeing and burnout scores look manageable. "
         "But averages hide where the real problem is. Scroll down."
     )
 
@@ -114,12 +136,35 @@ with tab1:
 
 with tab2:
     st.subheader("🎯 Action Plan for Leadership")
+    sector_context = "IT services" if sector.startswith("IT") else "manufacturing"
     st.caption(
-        "Top 5 risks identified. Each comes with AI-generated recommendations "
-        "tailored to a Latvian manufacturing context. Click any card to expand."
+        f"Top 5 risks identified. Each comes with AI-generated recommendations "
+        f"tailored to a Latvian {sector_context} context. Click any card to expand."
     )
 
-    recommendations = load_recommendations()
+    recommendations = load_recommendations(str(rec_path))
+
+    # Identify the team that owns the most top-5 risks
+    risks_by_team = {}
+    for r in recommendations:
+        risks_by_team[r["team"]] = risks_by_team.get(r["team"], 0) + 1
+    top_team = max(risks_by_team, key=risks_by_team.get)
+    top_team_risks = [r for r in recommendations if r["team"] == top_team]
+    top_team_size = top_team_risks[0]["employee_count"]
+    flagged_dimensions = [r["dimension"] for r in top_team_risks]
+
+    # Get ROI for current company size for the inaction cost
+    from utils.trend_data import roi_calculation
+    inaction_cost = roi_calculation(company_size=company_size)["annual_inaction_cost"]
+
+    flagged_str = ", ".join(flagged_dimensions[:-1]) + f", and {flagged_dimensions[-1]}" if len(flagged_dimensions) > 1 else flagged_dimensions[0]
+
+    st.error(
+        f"🚨 **Critical priority: {top_team} team ({top_team_size} employees).** "
+        f"{flagged_str} all flag — interconnected pattern, not isolated issues. "
+        f"Acting on top 3 recommendations projected to recover all {len(top_team_risks)} dimensions in 12 weeks. "
+        f"Estimated cost of inaction: **€{inaction_cost:,}/year**."
+    )
 
     all_teams = sorted({r["team"] for r in recommendations})
     selected = st.radio(
@@ -181,7 +226,8 @@ with tab3:
     # Section 1 — Historical trend
     st.markdown("### 6-month wellbeing trend by team")
 
-    historical = build_historical_trend()
+    sector_key = "it" if sector.startswith("IT") else "manufacturing"
+    historical = build_historical_trend(sector_key)
     fig_trend = px.line(
         historical,
         x="month",
@@ -197,24 +243,26 @@ with tab3:
         yaxis=dict(range=[2.5, 4.0], title="Wellbeing score"),
     )
     fig_trend.update_traces(line=dict(width=2))
+    target_team = "Engineering" if sector.startswith("IT") else "Production"
     for trace in fig_trend.data:
-        if trace.name == "Production":
+        if trace.name == target_team:
             trace.line.width = 4
             trace.line.color = "#e74c3c"
     st.plotly_chart(fig_trend, use_container_width=True)
 
     st.info(
-        "📉 **Production team has been declining for 6 months.** "
-        "This was visible in survey data all along — PulseAct surfaces it as actionable insight."
+        f"📉 **{target_team} team has been declining for 6 months.** "
+        f"This was visible in survey data all along — PulseAct surfaces it as actionable insight."
     )
 
     st.divider()
 
     # Section 2 — Projection
-    st.markdown("### Predicted improvement: Production team, 12 weeks")
+    target_team = "Engineering" if sector.startswith("IT") else "Production"
+    st.markdown(f"### Predicted improvement: {target_team} team, 12 weeks")
     st.caption("If leadership acts on the top 3 AI-recommended actions per dimension.")
 
-    projection = build_projection()
+    projection = build_projection(sector_key)
 
     # Show only the top 4 dimensions with largest current-vs-projected gap
     projection_display = projection.copy()
@@ -250,15 +298,25 @@ with tab3:
         xaxis=dict(tickangle=0),
     )
     st.plotly_chart(fig_proj, use_container_width=True)
-    st.caption("Showing the 4 dimensions with biggest projected improvement. Burnout risk: lower is better (projected to drop from 4.25 to 3.20).")
+    if sector.startswith("IT"):
+        burnout_current = 4.46
+        burnout_projected = 3.40
+    else:
+        burnout_current = 4.25
+        burnout_projected = 3.20
+    st.caption(
+        f"Showing the 4 dimensions with biggest projected improvement. "
+        f"Burnout risk: lower is better (projected to drop from {burnout_current} to {burnout_projected})."
+    )
 
     st.divider()
 
     # Section 3 — ROI
     st.markdown("### 💰 Return on Investment")
-    st.caption("For a 100-employee Latvian manufacturing company.")
+    sector_type = "IT services" if sector.startswith("IT") else "manufacturing"
+    st.caption(f"For a {company_size}-employee Latvian {sector_type} company.")
 
-    roi = roi_calculation(company_size=100)
+    roi = roi_calculation(company_size=company_size)
 
     col1, col2, col3, col4 = st.columns(4)
     col1.metric(
