@@ -35,7 +35,7 @@
     "employee_count": 40,
     "severity": 0.7,
     "headline": "Production team struggles with unmanageable workloads, risking burnout and quality issues",
-    "why_it_matters": "High workloads reduce employee well-being, increase error rates, and lower productivity. In Latvia’s competitive manufacturing sector, this can lead to higher turnover and operational disruptions. Addressing this proactively prevents long-term costs and supports sustainable growth.",
+    "why_it_matters": "High workloads reduce employee well-being, increase error rates, and lower productivity. In Latviaâ€™s competitive manufacturing sector, this can lead to higher turnover and operational disruptions. Addressing this proactively prevents long-term costs and supports sustainable growth.",
     "actions": [
       {
         "action": "Conduct a 2-week workload audit with Production team leads to map tasks, bottlenecks, and idle time using shift logs and supervisor feedback",
@@ -67,7 +67,7 @@
     "why_it_matters": "Low recognition scores (2.48/5) can demotivate engineers, reduce productivity, and increase turnover in a critical department. High-effort roles in manufacturing demand visible appreciation to sustain performance and innovation.",
     "actions": [
       {
-        "action": "Introduce monthly 'Engineering Hero' awards with small monetary bonuses (€50-100) and public recognition in team meetings",
+        "action": "Introduce monthly 'Engineering Hero' awards with small monetary bonuses (â‚¬50-100) and public recognition in team meetings",
         "effort": "low",
         "impact": "medium",
         "timeline_weeks": 4
@@ -93,7 +93,7 @@
     "employee_count": 40,
     "severity": 0.475,
     "headline": "Production team lacks autonomy, risking engagement and efficiency",
-    "why_it_matters": "Low autonomy can lead to disengagement, higher turnover, and reduced productivity in a high-pressure manufacturing environment. Addressing this can improve morale, innovation, and operational agility, which are critical for competitiveness in Latvia’s industrial sector.",
+    "why_it_matters": "Low autonomy can lead to disengagement, higher turnover, and reduced productivity in a high-pressure manufacturing environment. Addressing this can improve morale, innovation, and operational agility, which are critical for competitiveness in Latviaâ€™s industrial sector.",
     "actions": [
       {
         "action": "Introduce shift-level decision-making: empower team leads to adjust minor production schedules (e.g., break timing, tool maintenance) within predefined limits",
@@ -125,13 +125,13 @@
     "why_it_matters": "Low recognition scores correlate with reduced morale, higher turnover, and lower productivity in manufacturing environments where teamwork and consistency are critical. Addressing this risk can improve engagement and operational stability.",
     "actions": [
       {
-        "action": "Implement a monthly 'Employee of the Month' program with a small monetary bonus (€50-€100) and public recognition in team meetings or on company noticeboards",
+        "action": "Implement a monthly 'Employee of the Month' program with a small monetary bonus (â‚¬50-â‚¬100) and public recognition in team meetings or on company noticeboards",
         "effort": "low",
         "impact": "medium",
         "timeline_weeks": 4
       },
       {
-        "action": "Introduce a peer-to-peer recognition system where employees can nominate colleagues for 'Shout-Outs' during shift handovers, with monthly winners receiving gift cards (e.g., €20) from local stores",
+        "action": "Introduce a peer-to-peer recognition system where employees can nominate colleagues for 'Shout-Outs' during shift handovers, with monthly winners receiving gift cards (e.g., â‚¬20) from local stores",
         "effort": "medium",
         "impact": "high",
         "timeline_weeks": 8

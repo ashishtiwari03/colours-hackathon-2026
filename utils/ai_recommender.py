@@ -80,5 +80,5 @@ if __name__ == "__main__":
             print(f"  Action {j}: {a['action']}")
             print(f"    Effort: {a['effort']} | Impact: {a['impact']} | Timeline: {a['timeline_weeks']}w")
 
-    RECOMMENDATIONS_CACHE.write_text(json.dumps(results, indent=2, ensure_ascii=False))
+    RECOMMENDATIONS_CACHE.write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"\nSaved to {RECOMMENDATIONS_CACHE}")
